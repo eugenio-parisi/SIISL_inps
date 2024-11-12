@@ -1,0 +1,52 @@
+SQL> alter index FRA_IDX1 noparallel;
+
+Index FRA_IDX1 altered.
+
+SQL> DROP INDEX FRA_IDX1;
+
+Index FRA_IDX1 dropped.
+
+SQL> 
+SQL> declare
+  2   i number:=0;
+  3   bs number :=1000000;
+  4  begin
+  5    for i in 1..20 -- milioni se bs=1E6
+  6    loop
+  7      insert /*+ append parallel*/  into FRA (id, TIMESTAMPREQUESTUTC, last_modified, version, JSON_DOCUMENT)
+  8      select /*+ parallel (D, 4) */ id, created_on, last_modified, version, JSON_DOCUMENT from "APPL1"."DOCINPS"
+  9      where id between ltrim(to_char((i-1)*bs+1)) and ltrim(to_char(i*bs));
+ 10      commit;
+ 11      dbms_output.put_line('Batch '||to_char(i)||' completato');
+ 12    end loop;
+ 13  end;
+ 14  /
+
+PL/SQL procedure successfully completed.
+
+SQL> 
+SQL> select /*+ parallel (d, 8) */ count(1) from fra d;
+
+   COUNT(1) 
+___________ 
+   29999996 
+
+SQL> -- serve taaaaanto temp tablespace...
+SQL> CREATE INDEX FRA_IDX1 ON FRA (JSON_DOCUMENT) 
+  2      INDEXTYPE IS CTXSYS.CONTEXT_V2 
+  3      PARAMETERS ('SIMPLIFIED_JSON sync (every "freq=secondly; interval=1") search_on text  dataguide off') PARALLEL 4;
+
+Index FRA_IDX1 created.
+
+SQL> alter index FRA_IDX1 noparallel;
+
+Index FRA_IDX1 altered.
+
+SQL> select count(1) from FRA;
+
+   COUNT(1) 
+___________ 
+   29999996 
+
+SQL> 
+SQL> spool off

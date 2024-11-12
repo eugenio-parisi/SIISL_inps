@@ -1,0 +1,78 @@
+SQL> declare
+  2  i number;
+  3  batches number := 200;
+  4  batchsize number :=100000;
+  5  begin
+  6    for i in 1..batches loop
+  7  	  insert /*+ APPEND PARALLEL (4) */ into docinps
+  8  	  (ID
+  9  	  ,CREATED_ON
+ 10  	  ,LAST_MODIFIED
+ 11  	  ,VERSION
+ 12  	  ,JSON_DOCUMENT)
+ 13  	  select id_codice_fiscale
+ 14  	  ,timestampRequestUtc
+ 15  	  ,timestampRequestUtc
+ 16  	  ,1
+ 17  	  ,JSON_DOCUMENT
+ 18  	  from inps_doc_json_v
+ 19  	  where id_codice_fiscale between ((i-1)*batchsize+1) and i*batchsize;
+ 20  	  dbms_output.put_line(to_char(i));
+ 21  	  commit;
+ 22    end loop;
+ 23    dbms_output.put_line('fatto');
+ 24  end;
+ 25  /
+
+PL/SQL procedure successfully completed.
+
+SQL> select count(1) from docinps;
+
+  COUNT(1)                                                                                                                          
+----------                                                                                                                          
+  20000000                                                                                                                          
+
+SQL> 
+SQL> 
+SQL> -- con docinps
+SQL> -- serve indice on in-memory.
+SQL> DROP INDEX docinps_IDX1;
+DROP INDEX docinps_IDX1
+           *
+ERROR at line 1:
+ORA-01418: specified index does not exist 
+
+
+SQL> CREATE /*+ PARALLEL 4 nologging */ INDEX docinps_IDX1 ON docinps (JSON_DOCUMENT)
+  2      INDEXTYPE IS CTXSYS.CONTEXT_V2
+  3      PARAMETERS ('SIMPLIFIED_JSON sync (every "freq=secondly; interval=1") search_on text_value dataguide off') ;
+CREATE /*+ PARALLEL 4 nologging */ INDEX docinps_IDX1 ON docinps (JSON_DOCUMENT)
+*
+ERROR at line 1:
+ORA-29855: error occurred in the execution of ODCIINDEXCREATE routine 
+ORA-20000: Oracle Text error: 
+DRG-50857: oracle error in dreii0fsh 
+ORA-01653: unable to extend table APPL1.DR$DOCINPS_IDX1$SN by 8192 in tablespace USERS 
+ORA-06512: at "CTXSYS.DRUE", line 186 
+ORA-06512: at "CTXSYS.TEXTINDEXMETHODS", line 338 
+
+
+SQL> alter index docinps_IDX1 noparallel;
+
+Index altered.
+
+SQL> select count(1) from docinps;
+
+  COUNT(1)                                                                                                                          
+----------                                                                                                                          
+  20000000                                                                                                                          
+
+SQL> select codice_fiscale from codice_fiscale where id=1000000;
+
+CODICE_FISCALE                                                                                                                      
+----------------                                                                                                                    
+JADHMY70M36C408N                                                                                                                    
+
+SQL> 
+SQL> --JADHMY70M36C408N
+SQL> spool off

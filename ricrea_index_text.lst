@@ -1,0 +1,22 @@
+
+Index altered.
+
+Elapsed: 00:00:00.01
+
+Index dropped.
+
+Elapsed: 00:00:01.32
+CREATE INDEX docinps_IDX1 ON docinps (JSON_DOCUMENT)
+*
+ERROR at line 1:
+ORA-01013: user requested cancel of current operation 
+
+
+Elapsed: 00:02:00.03
+
+21:36:41 SQL> 
+21:36:41 SQL> 
+21:36:42 SQL> 
+21:36:42 SQL> 
+21:36:43 SQL> 
+21:36:43 SQL> spool off

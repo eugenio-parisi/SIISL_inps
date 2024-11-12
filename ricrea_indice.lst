@@ -1,0 +1,33 @@
+SQL> -- text e non text_value
+SQL> alter index docinps_IDX1 noparallel;
+
+Index altered.
+
+SQL> DROP INDEX docinps_IDX1;
+
+Index dropped.
+
+SQL> -- server taaaaanto temp tablespace...
+SQL> CREATE INDEX docinps_IDX1 ON docinps (JSON_DOCUMENT)
+  2      INDEXTYPE IS CTXSYS.CONTEXT_V2
+  3      PARAMETERS ('SIMPLIFIED_JSON sync (every "freq=secondly; interval=1") search_on text  dataguide off') PARALLEL 4;
+
+Index created.
+
+SQL> alter index docinps_IDX1 noparallel;
+
+Index altered.
+
+SQL> select count(1) from docinps;
+
+  COUNT(1)                                                                      
+----------                                                                      
+  20000000                                                                      
+
+SQL> select codice_fiscale from codice_fiscale where id=1000000;
+
+CODICE_FISCALE                                                                  
+----------------                                                                
+JADHMY70M36C408N                                                                
+
+SQL> spool off
