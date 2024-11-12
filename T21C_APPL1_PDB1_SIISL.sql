@@ -116,9 +116,9 @@ s5   they can find ghe "cf" in the wrong field
 
 Now: am I wrong on sentence s2? You wrote:
 "are they using json search index just because values can be arrays? 
-If thats the case, since they are using 21c, mutli-value index might work.
+If that’s the case, since they are using 21c, mutli-value index might work.
 Will need to check whether these filters pickup multi-value index in 21c, 
-in which case they might not need an enhancement in filters and wouldnt need to use $contains. 
+in which case they might not need an enhancement in filters and wouldn’t need to use $contains. 
 Answer is: thwy would like to search data attached here in the way I explained.
 They finally gave me the data and the code they used for a testcase.
 I ran the testcase on a 21c instance and their code snippets work as expected.
@@ -419,6 +419,7 @@ Index FRA_IDX1 created.
 
 Elapsed: 00:05:49.343
 */
+
 -- prova di nuovo 
 --select count(1) from (
 SELECT * FROM "Fra"
@@ -1448,76 +1449,6 @@ WHERE
     )
 ;
 
-
--- FRA con le sole OR
-alter system flush buffer_cache;
---select count(1) from (
-SELECT * FROM "Fra"
-WHERE 
-    ( /*( JSON_VALUE("DATA", '$.timestampRequestUtc') >= '1970-01-01T00:00:00.0000000'
-        AND JSON_VALUE("DATA", '$.timestampRequestUtc') <= '9999-12-31T00:00:00.0000000' 
-      )
-      --AND ( JSON_TEXTCONTAINS ( "DATA", '$', 'BNCGVN55D70D460A' ) ) -- pleonastica: ma serve per indirizzare le OR successive
-      AND */(      JSON_TEXTCONTAINS ( "DATA", '$.request.codiceFiscale', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.cfTut_AMM_RL', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.codiceFiscaleRichiedente', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.informazioniDid.codiceFiscale', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.cfRichiedente', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.CFRichiedente', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.esitoElaborazione.esitiINPS.nucleoISEEDellaDomanda.soggettiNucleo', 'BNCGVN55D70D460A')
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.esitoElaborazione.estremiDomanda.datiTutore.cfTutore', 'BNCGVN55D70D460A')
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.esitoElaborazione.estremiDomanda.datiRichiedente.cfRichiedente', 'BNCGVN55D70D460A')
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.esitiINPS.nucleoISEEDellaDomanda.soggettiNucleo', 'BNCGVN55D70D460A')
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.estremiDomanda.datiTutore.cfTutore', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.estremiDomanda.datiRichiedente.cfRichiedente', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.response.payload.lavoratore.datiAnagrafici.codiceFiscale', 'BNCGVN55D70D460A')
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.codiceFiscaleBeneficiario', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.CodiceFiscale', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.ComponenteFamiliare_CF', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.CodiceFiscaleRichiedente', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.codiceFiscaleInadempiente', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.anagrafica.codiceFiscale', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.request.anagrafica.codiceFiscaleAggiornato', 'BNCGVN55D70D460A' )
-              OR JSON_TEXTCONTAINS ( "DATA", '$.response.mlpsResponse.esitoAnagrafica.codiceFiscale', 'BNCGVN55D70D460A' ) 
-          )
-    )
---)
-;
---> 1"
-
--- docinps
-select count(1) from docinps;
-SELECT * FROM DOCINPS
-WHERE
-    (     JSON_VALUE(JSON_DOCUMENT, '$.timestampRequestUtc') >= '1970-01-01T00:00:00.0000000' AND JSON_VALUE(JSON_DOCUMENT, '$.timestampRequestUtc') <= '9999-12-31T00:00:00.0000000'
-      --AND ( JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$', 'SIOEDL01E52H445P' ) ) -- pleonastica: ma serve per indirizzare le OR successive
-      AND ( JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.codiceFiscale', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.cfTut_AMM_RL', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.codiceFiscaleRichiedente', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.informazioniDid.codiceFiscale', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.cfRichiedente', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.CFRichiedente', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.esitoElaborazione.esitiINPS.nucleoISEEDellaDomanda.soggettiNucleo', 'SIOEDL01E52H445P')
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.esitoElaborazione.estremiDomanda.datiTutore.cfTutore', 'SIOEDL01E52H445P')
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.esitoElaborazione.estremiDomanda.datiRichiedente.cfRichiedente', 'SIOEDL01E52H445P')
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.esitiINPS.nucleoISEEDellaDomanda.soggettiNucleo', 'SIOEDL01E52H445P')
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.estremiDomanda.datiTutore.cfTutore', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.estremiDomanda.datiRichiedente.cfRichiedente', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.response.payload.lavoratore.datiAnagrafici.codiceFiscale', 'SIOEDL01E52H445P')
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.codiceFiscaleBeneficiario', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.CodiceFiscale', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.ComponenteFamiliare_CF', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.CodiceFiscaleRichiedente', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.codiceFiscaleInadempiente', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.anagrafica.codiceFiscale', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.request.anagrafica.codiceFiscaleAggiornato', 'SIOEDL01E52H445P' )
-              OR JSON_TEXTCONTAINS ( "JSON_DOCUMENT", '$.response.mlpsResponse.esitoAnagrafica.codiceFiscale', 'SIOEDL01E52H445P' ) 
-          )
-    )
-;
-
--- 
-
 select name, value from v$parameter where isdefault='FALSE';
 select distinct isdefault from v$parameter;
 set lines 150 pages 999
@@ -1527,20 +1458,3 @@ col value for a66
 select sum(bytes)/1024/1024 MB from  user_segments where segment_name='DOCINPS';
 select sum(bytes)/1024/1024 MB from  user_segments where segment_name='FRA_HCC_PART';
 
--- controlla la compressione
-with 
-    us as (select segment_name as collection_name, sum(bytes) as sum_bytes
-        from user_segments
-        where segment_name in ('FRA_ACO','DOCINPS','FRA','FRA_HCC', 'FRA_HCC_PART') 
-        group by segment_name)
-   ,nr as (select nvl(num_rows,100000000) docs, table_name, INMEMORY, nvl(compress_for,'disabilitata') as compression, PARTITIONED from user_tables)
-   ,pc as (select table_name as part_table_name, count(1) parts, listagg (distinct compress_for) as part_compression from user_tab_partitions group by table_name)
-   ,uc as (select segment_name, sum(bytes) sum_uncompress_bytes 
-        from user_segments
-        where segment_name='FRA' group by segment_name)
-select us.collection_name, nr.docs, inmemory, partitioned, nvl(to_char(pc.parts),'non partizionata') as num_part, 
-    decode(partitioned,'YES','v.comp.liv.partizioni',compression) as compressione_liv_collection, part_compression as compressione_liv_part,
-    round(1/(sum_bytes/sum_uncompress_bytes),2) comp_factor, round(docs/(sum_bytes/1024/1024/1024)) docs_per_gb
-from us,nr,uc,pc
-where table_Name=collection_name and table_Name=part_table_name(+)
-;
