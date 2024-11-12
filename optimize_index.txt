@@ -1,0 +1,5 @@
+exec CTX_DDL.OPTIMIZE_INDEX(IDX_NAME=>'FRA_HCC_PART_IDX1',  OPTLEVEL=>'REBUILD' /* or CTX_DDL.OPTLEVEL_REBUILD*/)
+
+alter index FRA_IDX1          parameters ('replace metadata sync(ON COMMIT) optimize (auto_daily)');
+alter index FRA_HCC_PART_IDX1 parameters ('replace metadata sync(ON COMMIT) optimize (auto_daily)');
+alter index DOCINPS_IDX1      parameters ('replace metadata sync(ON COMMIT) optimize (auto_daily)');
